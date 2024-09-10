@@ -1,0 +1,89 @@
+#1. Import all the necessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+#2. Import the dataset provided
+data=pd.read_csv('loan-predictionUC..csv')
+data.head()
+
+#3. Understand the data
+data.info()
+data.describe()
+
+#4. Deal with the missing values if any
+data.isnull().sum()
+data = data.fillna(data.Loan_Amount_Term.mean())
+# Let's check the null values again
+data.isnull().sum()
+obj = (data.dtypes == 'object')
+print("Categorical variables:",len(list(obj[obj].index)))
+Categorical variables: 8
+data.drop(['Loan_ID'],axis=1,inplace=True)
+data.head()
+
+#5. Do some visualization if necessary
+obj = (data.dtypes == 'object')
+object_cols = list(obj[obj].index)
+plt.figure(figsize=(18,36))
+index = 1
+for col in object_cols:
+y = data[col].value_counts()
+plt.subplot(11,4,index)
+plt.xticks(rotation=90)
+sns.barplot(x=list(y.index), y=y)
+index +=1
+
+data = data.apply(pd.to_numeric, errors='coerce')
+plt.scatter(data['ApplicantIncome'],data['LoanAmount'])
+plt.xlabel('ApplicantIncome')
+plt.ylabel('LoanAmount')
+plt.title('Scatter plot on Loan Sanction')
+Text(0.5, 1.0, 'Scatter plot on Loan Sanction')
+
+data.plot(kind='box',subplots=True, layout=(4,4), sharex=False, sharey=False,
+figsize=(9,9),
+title='Box Plot for each input variable')
+plt.savefig('loan sanction_box')
+plt.show()
+
+import pylab as pl
+data.hist(bins=30, figsize=(9,9))
+pl.suptitle("Histogram for each numeric input variable")
+plt.savefig('fruits_hist')
+plt.show()
+
+sns.boxplot(x=data["Loan_Amount_Term"],y=data["ApplicantIncome"])
+sns
+
+X=data.iloc[:,6:10]
+y=data.iloc[:,5]
+
+#6. Divide the dataset into training and test datasets
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y,test_size=0.05,
+random_state=0)
+from sklearn.preprocessing import MinMaxScaler
+scaler = MinMaxScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+#7. Build the machine learning model which ever is suitable for the dataset
+from sklearn.tree import DecisionTreeClassifier
+clf = DecisionTreeClassifier()
+
+#8. Fit the model on the training dataset
+clf.fit(X_train,y_train)
+
+#9. Test the model and find the accuracy of the model on the test and the
+training datasets
+print('Accuracy of Decision Tree classifier on training set: {:.2f}'
+.format(clf.score(X_train, y_train)))
+print('Accuracy of Decision Tree classifier on test set: {:.2f}'
+.format(clf.score(X_test, y_test)))
+
+#10. Create a confusion matrix
+from sklearn.metrics import confusion_matrix
+cm = confusion_matrix(y_train,y_pred)
+print(cm)
